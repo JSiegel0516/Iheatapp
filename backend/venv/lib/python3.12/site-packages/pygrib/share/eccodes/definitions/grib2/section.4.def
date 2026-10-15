@@ -1,0 +1,168 @@
+# (C) Copyright 2005- ECMWF.
+
+transient timeRangeIndicator=0 : no_copy,hidden;
+transient is_localtime=0 : no_copy,hidden;
+
+position offsetSection4;
+section_length[4] section4Length ;
+meta section4Pointer section_pointer(offsetSection4,section4Length,4);
+
+unsigned[1] numberOfSection = 4:read_only;
+
+unsigned[2] NV : dump ;
+alias numberOfVerticalCoordinateValues=NV ;
+alias numberOfCoordinatesValues=NV;
+# For table 4.5, code 150 Generalized vertical height coordinate
+alias numberOfVerticalGridDescriptors=NV ;
+
+transient neitherPresent = 0;
+
+# if (centre==7 || centre==46) {
+#    alias disableGrib1LocalSection=true;
+# }
+
+concept datasetForLocal(unknown) {
+  "tigge"       = {productionStatusOfProcessedData=4;}
+  "tigge"       = {productionStatusOfProcessedData=5;}
+  "s2s"         = {productionStatusOfProcessedData=6;}
+  "s2s"         = {productionStatusOfProcessedData=7;}
+  "cerise"      = {marsClass=50;}
+  "era6"        = {marsClass=40;} # for ERA6 parameters with constituentType
+  "hydro"       = {marsClass=35;} # EFAS/GLOFAS
+  "hydro"       = {marsClass=38;} # ULYSSES
+  "fire"        = {marsClass=39;} # Global Wildfire awareness system
+  "uerra"       = {productionStatusOfProcessedData=8;} # UERRA
+  "uerra"       = {productionStatusOfProcessedData=9;}
+  "uerra"       = {productionStatusOfProcessedData=10;} # CARRA/CERRA
+  "uerra"       = {productionStatusOfProcessedData=11;}
+  "destine"     = {productionStatusOfProcessedData=12;} # Destination Earth
+  "destine"     = {productionStatusOfProcessedData=13;}
+  "destinegen1" = {productionStatusOfProcessedData=12;generation=1;} # DestinE ClimateDT Generation 1
+  "destinegen1" = {productionStatusOfProcessedData=13;generation=1;}
+  "era"         = {marsClass=22;}
+  "era"         = {marsClass=5;}
+  "era"         = {marsClass=23;}
+  "era"         = {marsClass=14;}
+  "era"         = {marsClass=21;}
+  "era"         = {marsClass=24;}
+  "era"         = {marsClass=3;}
+  "era"         = {marsClass=30;}
+  "era"         = {marsClass=33;}
+  "nextgems"    = {marsClass=53;}
+}
+
+# MTG2Switch logic defined here
+# 0 = pre-MTG2 encoding used
+# 1 = post-MTG2 encoding used
+# 2 = post-MTG2 encoding with paramId + chemId used
+
+# By default centres will use post MTG2 parameter concepts (= 1) to retain the status quo.
+# The default can then be modified based on the below tablesVersion, according to the
+# conditions defined in the MTG2SwitchViaTablesVersion concept at the top level or in the
+# concept at the centre/pseudocentre level
+
+concept MTG2SwitchViaTablesVersion(false, "MTG2SwitchViaTablesVersionConcept.def", conceptsDir2, conceptsDir1): hidden, read_only;
+
+# Then the logic for the MTG2 switch default value in these cases is
+# applied in the below function - cf. the mtg2_switch_default accessor
+# This is as follows:
+#     tablesVersion <= tablesVersionMTG2Switch, then MTG2SwitchDefault=0., i.e. we are pre-MTG2
+#     tablesVersion > tablesVersionMTG2Switch, and class=mc/cr  then MTG2SwitchDefault=2., i.e. we are post-MTG2 with param-chem split.
+#     tablesVersion > tablesVersionMTG2Switch  in all other cases then MTG2SwitchDefault=1., i.e. we are post-MTG2.
+
+meta MTG2SwitchDefault mtg2_switch_default(tablesVersion, tablesVersionMTG2Switch, marsClass, MTG2SwitchViaTablesVersion) : hidden, read_only;
+
+# This sets the default for the MTG2Switch concept which we then define below
+# Default=1 unless changed by the above concept, or by adding an entry to the concept below in a given centre/pseudocentre.
+
+concept MTG2Switch(MTG2SwitchDefault, "MTG2SwitchConcept.def", conceptsDir2,conceptsDir1): hidden, read_only, long_type;
+
+# ECC-2002
+# if datasetForLocal is not "unknown", we remap conceptsDir1 and conceptsDir2
+# See the g2_concept_dir accessor
+
+codetable[2] productDefinitionTemplateNumber('4.0.table',masterDir,localDir) : dump;
+
+if (section2Used == 1) {
+   when (new()) {
+      set_nofail productDefinitionTemplateNumber=productDefinitionTemplateNumberInternal;
+   }
+}
+transient genVertHeightCoords = 0;
+
+if (productDefinitionTemplateNumber >= 32768) {
+   template productDefinition "grib2/local/[centreForLocal]/template.4.[productDefinitionTemplateNumber:l].def";
+} else {
+   template productDefinition "grib2/templates/template.4.[productDefinitionTemplateNumber:l].def";
+}
+
+if ( setLocalDefinition || (defined(marsStream) && defined(marsType)) ) {
+   template_nofail marsKeywords1 "mars/grib.[marsStream:s].[marsType:s].def";
+}
+
+concept productDefinitionTemplateName(unknown, "productDefinitionTemplateConcept.def", conceptsDir2,conceptsDir1): no_copy;
+
+template parameters "grib2/parameters.def";
+
+# Hook for local extras
+template_nofail extras "grib2/local/[centre]/section4_extras.def";
+
+# Detect if this is for Generalized Vertical Height Coordinates
+if (defined(typeOfFirstFixedSurface)) {
+   if (typeOfFirstFixedSurface == 150) {
+      transient genVertHeightCoords = 1;
+      transient PVPresent = 0;
+   }
+}
+
+if (genVertHeightCoords) {
+   # Generalized vertical height coordinate case
+   ieeefloat nlev : dump ;
+   ieeefloat numberOfVGridUsed : dump;
+   byte[16] uuidOfVGrid : dump;
+
+   alias numberOfVerticalCoordinateValues = nlev;
+   alias numberOfCoordinatesValues = nlev;
+   alias numberOfVerticalGridDescriptors = nlev;
+}
+else {
+   if (NV == 0){
+      transient PVPresent = 0;
+   } else {
+      transient PVPresent = 1;
+   }
+   # See GRIB-547
+   if (PVPresent || NV>0){
+      ieeefloat pv[numberOfCoordinatesValues] : dump;
+      alias vertical.pv=pv;
+   }
+
+   # GRIB-534: To easily remove vertical coordinates, set this key to 1
+   concept_nofail deletePV(unknown) {
+      "1" = { PVPresent=0; NV=0; }
+   }
+}
+
+if (MTG2Switch > 0) {
+   concept paramtype(unknown, "paramtypeConcept.def", conceptsDir2, conceptsDir1): hidden, read_only;
+
+   if (defined(stream) && is_one_of(stream,"sttd","stte")){
+    concept statType (unknown,"stattypeConcept.def",conceptsDir2,conceptsDir1) : read_only;
+    alias mars.stattype = statType;
+   }
+
+   concept timeSpan (unknown,"timespanConcept.def",conceptsDir2,conceptsDir1) : read_only;
+
+   # we use an abbreviation for fromstart -> fs
+   if (timeSpan is "fromstart") {
+      constant timeSpanfs = "fs" ;
+      alias mars.timespan = timeSpanfs;
+   }
+   else {
+      if (timeSpan isnot "unknown") {
+         alias mars.timespan = timeSpan;
+      }
+   }
+}
+
+meta md5Section4 md5(offsetSection4,section4Length);

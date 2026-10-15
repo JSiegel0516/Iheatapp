@@ -1,0 +1,38 @@
+# systemd unit for the WBGT FastAPI backend.
+#
+# Apache (rhialarm.sdsu.edu-ssl.conf) reverse-proxies:
+#     ProxyPass "/api/" "http://127.0.0.1:8080/api/"
+# This service provides that 127.0.0.1:8080 upstream and keeps it running
+# across reboots / crashes.
+#
+# INSTALL (on the rhialarm.sdsu.edu server):
+#   1. Edit WorkingDirectory / ExecStart below to the real backend path on
+#      the server (the placeholder assumes /var/www/html/rhi_alarm/backend).
+#   2. Set User= to whoever owns the venv (e.g. www-data or your deploy user).
+#   3. sudo cp wbgt-backend.service /etc/systemd/system/wbgt-backend.service
+#   4. sudo systemctl daemon-reload
+#   5. sudo systemctl enable --now wbgt-backend
+#   6. sudo systemctl status wbgt-backend      # verify it is running
+#      curl -s http://127.0.0.1:8080/api       # should return the welcome JSON
+#
+# Then reload Apache so the proxy picks it up:
+#   sudo a2enmod proxy proxy_http headers ssl   # if not already enabled
+#   sudo systemctl reload apache2
+
+[Unit]
+Description=WBGT FastAPI backend (uvicorn, upstream for Apache /api proxy)
+After=network.target
+
+[Service]
+Type=simple
+# --- adjust these three to match the server ---
+User=www-data
+WorkingDirectory=/var/www/html/rhi_alarm/backend
+ExecStart=/var/www/html/rhi_alarm/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8080 --workers 2 --timeout-keep-alive 120
+# ----------------------------------------------
+Restart=always
+RestartSec=3
+# Uvicorn logs to journald (view with: journalctl -u wbgt-backend -f)
+
+[Install]
+WantedBy=multi-user.target

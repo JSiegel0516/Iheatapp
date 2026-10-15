@@ -1,0 +1,182 @@
+/* 📌 Posición del Contenedor del Menú */
+.menuContainer {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: var(--z-index-controls);
+}
+
+/* 📌 Estilos del Botón de Hamburguesa */
+.hamburgerButton {
+  position: absolute;
+  right: 0px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: var(--padding);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-text);
+  font-weight: 700;
+  transition: background-color 0.3s ease;
+}
+
+.hamburgerIcon {
+  font-size: 1.8rem;
+}
+
+/* 📌 Efecto Hover en el Botón */
+.hamburgerButton:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 📌 Menú Desplegable */
+.dropdownMenu {
+  position: relative;
+  top: 50px;
+  right: 0;
+  /* HE CAMBIADO EL COLOR DE BLANCO AL QUE TIENE EL TITULO, PARA VER SI QUEDA GUAY */
+  background-color: var(--title-background);
+  /* _____________________________________________________________________________ */
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  padding: var(--padding);
+}
+
+/* 📌 Mostrar el Menú cuando esté activo */
+.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 📌 Estilos del Menú en Escritorio */
+.desktopMenu {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: var(--padding);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); Sombra sutil */
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Espacio entre los elementos */
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 📌 Opciones en Móviles */
+.mobileMenu {
+  display: none;
+}
+
+/* 📌 Estilos de las Opciones del Menú en Escritorio */
+.desktopMenu ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* 📌 Estilos de cada Opción */
+.desktopMenu li {
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+  font-size: var(--font-size-text);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 📌 Hover */
+.desktopMenu li:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateX(5px); /* Efecto de desplazamiento */
+}
+
+/* 📌 Animación de Aparición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 📌 Opciones en Móviles (Botones Redondos) */
+.menuItem {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 5px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* 📌 Hover en los botones */
+.menuItem:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 🌍 📌 RESPONSIVE DESIGN */
+
+/* 🎯 📱 Para pantallas pequeñas (< 768px) */
+@media (max-width: 768px) {
+  .desktopMenu {
+    display: none;
+  }
+
+  .mobileMenu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dropdownMenu {
+    width: auto;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .menuItem {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+}
+
+/* 🎯 💻 Para pantallas grandes (> 768px) */
+@media (min-width: 769px) {
+  .desktopMenu {
+    display: block;
+  }
+
+  .mobileMenu {
+    display: none;
+  }
+
+  .dropdownMenu {
+    width: 150px;
+    height: auto;
+  }
+}

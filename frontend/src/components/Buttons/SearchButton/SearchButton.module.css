@@ -1,0 +1,74 @@
+/* Contenedor principal */
+.searchContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Input normal (pantallas grandes) */
+.searchInput {
+  width: 70px;
+  flex-grow: 1;
+  padding: var(--padding);
+  font-size: var(--font-size-text);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--secondary-color);
+}
+
+/* Botón de búsqueda normal (pantallas grandes) */
+.searchButton {
+  padding: var(--padding) 15px;
+  font-size: var(--font-size-text);
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  background-color: var(--primary-color);
+  color: var(--button_font_color);
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.searchButton:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 📱 Pantallas pequeñas (modo expandible) */
+.iconButton {
+  border: none;
+  background-color: var(--primary-color);
+  color: var(--button_font_color);
+  width: var(--buttons-mobile);
+  height: var(--buttons-mobile);
+  border-radius: 50%;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.iconButton:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Input expandible en móviles */
+.searchInputMobile {
+  position: absolute; /* o relative, según dónde quieras que aparezca */
+  left: 90px; /* Ajusta la distancia desde la izquierda */
+  width: 80%; /* Ajusta el ancho según tu preferencia */
+  padding: 10px; /* Espaciado interno */
+  font-size: 16px; /* Tamaño del texto */
+  border: 2px solid var(--secondary-color); /* Borde con color global */
+  border-radius: var(--border-radius); /* Bordes redondeados globales */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  z-index: var(--z-index-title); /* Asegúrate de que esté encima */
+  background-color: white; /* Fondo blanco */
+}
+
+/* Contenedor expandido */
+.expanded {
+  /* background-color: rgba(255, 255, 255, 0.95); */
+  padding: 8px;
+  border-radius: var(--border-radius);
+}

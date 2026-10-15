@@ -1,0 +1,138 @@
+.sliderContainer {
+  position: absolute;
+  /* _______________________ */
+  /* Left */
+  bottom: 310px;
+  left: 10px;
+  /* _______________________ */
+
+  width: 300px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 5px 10px;
+  z-index: var(--z-index-controls);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+  color: white;
+}
+.hourLabelRow {
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.selectedHourInline {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+}
+
+.datePicker,
+.hourSlider {
+  width: 100%;
+}
+
+.datePicker label,
+.hourSlider label {
+  font-size: 14px;
+  /* font-weight: bold; */
+  display: block;
+  margin-bottom: 5px;
+}
+
+.datePicker input,
+.hourSlider input {
+  width: 100%;
+  padding: 3px;
+  font-size: 10px;
+  border-radius: 4px;
+  border: none;
+}
+
+.hourSlider input[type="range"] {
+  accent-color: #ff4d4d;
+}
+
+.selectedHour {
+  font-size: 8px;
+  color: #ccc;
+  text-align: center;
+  margin-top: 3px;
+  margin-bottom: -5px;
+}
+
+.submitButton {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+  transition: background 0.2s ease-in-out;
+}
+
+.submitButton:hover {
+  background-color: #e60000;
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .slider {
+    width: 50%; /* que ocupe todo el ancho de su contenedor */
+    accent-color: var(--primary-color); /* color de la barrita (moderno) */
+    margin-left: 5%; /* lo empujas a la derecha */
+  }
+
+  .controls {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .hourSlider input[type="range"] {
+    width: 80%;
+  }
+
+  .submitButton {
+    display: none;
+  }
+  .datePicker {
+    width: 30%;
+  }
+
+  .hourSlider {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .sliderContainerMobile {
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+    z-index: var(--z-index-controls);
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 0);
+    width: 100%;
+    block-size: var(--block-size-sliderContainerMobile);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 👇 animación y obedecer la variable */
+    transform: translateY(var(--panel-shift, 0%));
+    transition: transform 0.5s ease;
+  }
+}

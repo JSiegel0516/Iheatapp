@@ -1,0 +1,211 @@
+/* ===== HEADER & BASICS ===== */
+.rcw-conversation-container > .rcw-header {
+  background-color: rgb(15, 63, 140);
+}
+.rcw-launcher {
+  background-color: rgb(15, 63, 140) !important;
+}
+
+.rcw-title::before {
+  content: "";
+  display: inline-block;
+  width: 70px;
+  height: 70px;
+  margin-right: 20px;
+  background: url("./sol2.png") center / contain no-repeat;
+  vertical-align: middle;
+}
+.rcw-picker-btn {
+  display: none !important;
+}
+
+/* Tighter spacing for bullets inside messages */
+.rcw-message-text ul,
+.rcw-message-text ol {
+  margin: -10px 0 !important; /* tighten space above/below list */
+  padding-left: 16px !important; /* compact indent */
+}
+.rcw-message-text li {
+  margin: -4px 0 !important; /* minimal space between bullets */
+  line-height: 0.9 !important; /* compact line height within items */
+}
+.rcw-message-text p {
+  margin: 0px 0 !important; /* reduce space before/after paragraphs */
+  line-height: 1 !important;
+}
+
+/* ===== DESKTOP (flotante) ===== */
+@media (min-width: 769px) {
+  .rcw-widget-container {
+    position: fixed !important;
+    bottom: 40px !important;
+    right: -15px !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 8px !important;
+    z-index: 1000; /* suficiente en desktop */
+  }
+
+  /* ancho fijo del chat SOLO en desktop */
+  .rcw-conversation-container {
+    width: 320px !important;
+    max-width: 350px !important;
+    min-width: 350px !important;
+  }
+}
+
+/* ===== SCREENSHOT BUTTON (posición base desktop) ===== */
+.screenshot-button-container {
+  position: fixed;
+  bottom: 60px;
+  right: 80px;
+  z-index: 10020; /* above chat widget */
+  pointer-events: auto;
+}
+.screenshot-button {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #35bd52;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  position: relative;
+  z-index: 10021; /* ensure button itself is on top */
+}
+.screenshot-button:hover {
+  background: #2a9e42;
+}
+.screenshot-button-disabled {
+  background: #a0a0a0 !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===== MOBILE FULLSCREEN ===== */
+@media (max-width: 768px) {
+  /* ocultar launcher cuando abierto */
+  .rcw-opened .rcw-launcher {
+    display: none !important;
+  }
+
+  /* widget a pantalla completa */
+  .rcw-widget-container {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100svh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    z-index: 10000 !important;
+    /* ____________________________________________________________________ */
+    /* lo de abajo lo he añadido para dejar el esapcio de arriba del chatbot para que se vea el heatmap */
+    top: calc(10svh + env(safe-area-inset-top, 0)) !important;
+    height: calc(100svh - 10svh - env(safe-area-inset-top, 0)) !important;
+    /* ____________________________________________________________________ */
+  }
+
+  /* caja interna al 100% */
+  .rcw-conversation-container {
+    width: 100vw !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rcw-conversation-container > .rcw-header {
+    position: sticky;
+    top: env(safe-area-inset-top, 0);
+    padding-top: calc(env(safe-area-inset-top, 0) + 8px);
+    z-index: 2;
+  }
+  .rcw-messages-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rcw-sender {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 8px) !important;
+  }
+
+  .rcw-title::before {
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+  }
+
+  /* overlay del widget: NO comer eventos en móvil */
+  .rcw-widget-container.rcw-close-widget-container {
+    pointer-events: none !important;
+  }
+  .rcw-conversation-container,
+  .rcw-launcher,
+  .screenshot-button-container,
+  .screenshot-button {
+    pointer-events: auto !important;
+  }
+
+  :root {
+    --gap: 8px;
+    --safe: env(safe-area-inset-bottom, 0);
+  }
+  .screenshot-button-container {
+    right: 8px;
+    bottom: calc(var(--occupied-bottom) + max(var(--gap), var(--safe)));
+    z-index: 10020;
+    /* evitar “placa” grande que tape clics */
+    pointer-events: none;
+    inline-size: fit-content;
+    block-size: fit-content;
+    background: transparent;
+  }
+  .screenshot-button-container > * {
+    pointer-events: auto;
+  }
+
+  /* When chat is open on mobile, push screenshot button behind and disable it */
+  body.chat-open .screenshot-button-container {
+    z-index: 9990 !important; /* lower than widget's 10000 */
+    opacity: 0 !important; /* visually hide under translucent chat */
+    visibility: hidden !important;
+    transform: translateY(10px); /* small shift to avoid paint artifacts */
+  }
+  body.chat-open .screenshot-button,
+  body.chat-open .screenshot-button-container > * {
+    pointer-events: none !important;
+  }
+
+  .rcw-launcher {
+    position: fixed;
+    right: 55px;
+    bottom: calc(
+      var(--occupied-bottom) + max(var(--gap), var(--safe)) - 20px
+    ) !important;
+    z-index: 10010 !important;
+  }
+}
+.screenshot-button-container,
+.rcw-launcher {
+  transition: bottom 0.5s ease, transform 0.5s ease;
+}
+
+@media (max-width: 768px) {
+  .rcw-close-launcher,
+  .rcw-close-button {
+    background-color: rgb(15, 63, 140) !important; /* dark blue */
+    color: #fff !important; /* keep the "X" white */
+  }
+
+  .rcw-close-launcher svg,
+  .rcw-close-button svg {
+    fill: #fff !important;
+  }
+}

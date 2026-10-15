@@ -1,0 +1,244 @@
+.gaugeContainer {
+  z-index: var(--z-index-controls);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: auto; /* si no está, agrégalo */
+
+  position: absolute;
+  bottom: 0%;
+  left: 10px;
+  width: 300px; /* más estrecho */
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  border-radius: 10px;
+  padding: 10px 10px;
+  text-align: center;
+  gap: 5px;
+  padding-bottom: 8px; /* → prueba con 10px o menos */
+}
+
+.gaugeWrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.closeButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+/* 🔹 Contenedor en DOS COLUMNAS */
+.contentWrapper {
+  display: flex;
+  width: 100%;
+  justify-content: space-between; /* Separa Gauge y Tabla */
+  align-items: center;
+  gap: 5px;
+}
+
+/* 🔹 Sección Gauge */
+.gaugeSection {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  zoom: 0.85; /* ✅ Cambia esto */
+}
+
+/* 🔹 Sección Tabla */
+.tableSection {
+  flex: 1; /* Toma la otra mitad del espacio */
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* 🔹 Estilos de la Tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid white;
+  color: white;
+}
+.locationHeader {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 4px; /* antes estaba en 10px */
+  color: #ffffff;
+}
+
+.locationHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(237, 237, 237);
+}
+
+.locationHeader p {
+  margin: 2px 0 0 0; /* antes eran 4px */
+  font-size: 0.85rem;
+  color: #ccc;
+}
+.historyButton {
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.historyPanel {
+  position: absolute;
+  top: 0%;
+  left: 101%;
+  transform: translate(0%, 0%);
+  background: rgba(0, 0, 0, 0.8);
+  padding-right: 25px;
+  padding-top: 5px;
+  padding-left: 15px;
+  padding-bottom: 10px;
+  border-radius: 10px;
+  z-index: 100;
+  color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  width: 90%;
+  max-width: 350px;
+}
+
+.closeHistoryButton {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.historyPanel table {
+  width: 100%;
+  margin-top: 30px;
+  border-collapse: collapse;
+}
+
+.historyPanel th,
+.historyPanel td {
+  padding: 8px;
+  border-bottom: 1px solid white;
+  text-align: left;
+  font-size: 13px; /* o el tamaño que quieras */
+}
+.coordsDisplay {
+  position: absolute;
+  top: 35px; /* justo debajo del botón cerrar */
+  right: 10px;
+  font-size: 11px;
+  color: #ccc;
+  text-align: right;
+  line-height: 1.3;
+  z-index: 10;
+}
+@media (max-width: 768px) {
+  .gaugeSection {
+    /* zoom se controla dinámicamente desde JavaScript solo en móviles */
+  }
+  .gaugeContainer {
+    border-radius: 0px;
+    block-size: var(--block-size-gaugeContainer);
+    width: 100%;
+    position: absolute;
+    left: 0;
+    margin-bottom: 0px; /* espacio entre Gauge y el siguiente elemento */
+    transform: translateY(var(--panel-shift, 0%));
+    transition: transform 0.5s ease;
+  }
+
+  /* Modo navegador normal */
+  .browserMode {
+    bottom: 5svh;
+  }
+
+  /* Modo PWA - más espacio para la navegación del sistema */
+  .pwaMode {
+    bottom: 12svh;
+  }
+
+  .historyButton {
+    right: 30px;
+    bottom: 225px;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 10px;
+    right: 11%;
+
+    background: red;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+  .contentWrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tableSection {
+    /* width: 100%; Ocupa el ancho total */
+    display: none;
+  }
+  .historyPanel {
+    position: absolute;
+    bottom: 0; /* ✅ Pegado abajo */
+    left: 0;
+    width: 100vw; /* Viewport width */
+    height: 25vh; /* Viewport height */
+    transform: translateX(0%);
+    background: rgba(0, 0, 0, 1);
+    padding: 20px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 0;
+  }
+
+  .closeHistoryButton {
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+  }
+
+  .historyPanel table {
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}

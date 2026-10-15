@@ -1,0 +1,86 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--padding);
+  font-family: var(--font-family); /* Fuente global */
+}
+
+.title {
+  font-size: var(--font-size-title); /* Tamaño de título global */
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--text-color); /* Color de texto global */
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap); /* Espaciado global entre columnas */
+}
+
+.column {
+  flex: 1;
+  min-width: 300px;
+  background-color: rgba(
+    211,
+    211,
+    211,
+    0.3
+  ); /* Puedes definir --light-bg si se usa frecuentemente */
+  border-radius: var(--border-radius); /* Bordes redondeados globales */
+  padding: var(--padding);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--primary-color); /* Azul destacado global */
+}
+
+.text {
+  font-size: var(--font-size-text); /* Tamaño de texto global */
+  line-height: 1.6;
+  color: #555; /* Si este color se usa mucho, podrías definir --secondary-text */
+  margin-bottom: 15px;
+}
+
+.devName {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--text-color); /* Color de texto global */
+}
+
+.link {
+  font-size: var(--font-size-text); /* Tamaño de texto global */
+  color: var(--primary-color); /* Azul global para enlaces */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.button {
+  display: inline-block;
+  margin: 30px auto 0;
+  padding: var(--padding) 20px; /* Padding global con ajuste lateral */
+  background-color: var(--primary-color); /* Color primario global */
+  color: white;
+  text-align: center;
+  border: none;
+  border-radius: var(--border-radius); /* Bordes redondeados globales */
+  font-size: var(--font-size-text); /* Tamaño de fuente global */
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: var(--primary-hover); /* Color hover global */
+}
