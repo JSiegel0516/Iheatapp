@@ -146,44 +146,44 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
       setIsProcessing(true);
       toggleMsgLoader();
 
-      const systemMessage = {
-        role: "system",
-        content: `
-      You are Sol, a climate data assistant. Be clear and practical while varying your wording.
-      Use Fahrenheit only. The user's current WBGT is ${formattedWBGT} and falls in the ${
-          category ?? "unknown"
-        } section according to thresholds (F): Safe <72, Caution 72–<76, Warning 76–<80, Danger 80–<84, Extreme ≥84.
-      In one opening line, define WBGT very briefly (heat stress in sun), state the value and category. Then provide concise, actionable recommendations with varied phrasing. Avoid repeating the same tips every time; rotate focus between hydration, shade/rest cadence, clothing, timing, intensity, and vulnerable groups. ${chosenStyle}. Also ${chosenAngle}.
-      Respond in 3–6 short sentences or 1 sentence plus 2–4 bullets. Do not exceed 900 characters.
-      `,
-      };
-
-      const updatedHistory = [
-        systemMessage,
-        ...chatHistory,
-        { role: "user", content: newMessage },
-      ];
-
-      setChatHistory(updatedHistory);
-
-      const completion = await openai.chat.completions.create({
-        model: VISION_MODEL,
-        messages: updatedHistory,
-        temperature: 0.9,
-        top_p: 0.9,
-        presence_penalty: 0.4,
-        frequency_penalty: 0.4,
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: newMessage,
+          language: i18n.language || "en",
+          history: chatHistory.slice(-20),
+          map_context: {
+            wbgt_f: wbgtValue,
+            category,
+          },
+        }),
       });
 
-      const reply = completion?.choices?.[0]?.message?.content;
-      if (reply) {
-        addResponseMessage(reply);
-      } else {
-        addResponseMessage("Received unexpected response from the model.");
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        const detail = result?.detail || `HTTP ${response.status}`;
+        throw new Error(detail);
       }
+
+      const reply = result?.answer;
+      if (typeof reply !== "string" || !reply.trim()) {
+        throw new Error("The assistant returned an empty response.");
+      }
+
+      addResponseMessage(reply);
+      setChatHistory((history) => [
+        ...history,
+        { role: "user", content: newMessage },
+        { role: "assistant", content: reply },
+      ]);
     } catch (error) {
       console.error("Chat error:", error);
-      addResponseMessage(`Error: ${error.message}`);
+      addResponseMessage(
+        `Sorry, Sol could not answer right now. ${error.message}`
+      );
     } finally {
       setIsProcessing(false);
       toggleMsgLoader();

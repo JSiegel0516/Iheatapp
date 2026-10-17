@@ -41,3 +41,7 @@ pillow == 10.3.0
 requests == 2.31.0
 aiohttp == 3.9.1
 beautifulsoup4 == 4.12.2
+
+## Sol / Gemma integration
+openai == 3.34.0
+python-dotenv == 1.2.4
