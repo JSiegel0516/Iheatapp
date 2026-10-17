@@ -62,7 +62,10 @@ pnpm-debug.log*
 logs/
 
 # Generated RAG/vector-search artifacts
-backend/knowledge/index/
+backend/knowledge/corpus/*
+!backend/knowledge/corpus/.gitkeep
+backend/knowledge/index/*
+!backend/knowledge/index/.gitkeep
 backend/knowledge/raw/
 backend/knowledge/extracted/
 backend/data/vector-index/
