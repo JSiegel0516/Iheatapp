@@ -173,7 +173,20 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
         throw new Error("The assistant returned an empty response.");
       }
 
-      addResponseMessage(reply);
+      const citations = Array.isArray(result?.citations)
+        ? result.citations.filter((citation) => citation?.url)
+        : [];
+      const sourceList = citations
+        .map(
+          (citation) =>
+            `[${citation.number}] ${citation.title}: ${citation.url}`
+        )
+        .join("\n");
+      const displayedReply = sourceList
+        ? `${reply}\n\nSources:\n${sourceList}`
+        : reply;
+
+      addResponseMessage(displayedReply);
       setChatHistory((history) => [
         ...history,
         { role: "user", content: newMessage },

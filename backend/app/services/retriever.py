@@ -121,6 +121,7 @@ class Retriever:
         limit: int = 6,
         candidate_limit: int = 20,
         minimum_semantic_score: float | None = None,
+        minimum_final_score: float | None = None,
         max_chunks_per_source: int = 2,
     ) -> list[dict[str, Any]]:
         """Return diversified passages ordered by hybrid relevance."""
@@ -134,6 +135,8 @@ class Retriever:
             minimum_semantic_score = float(
                 os.getenv("RAG_MIN_SEMANTIC_SCORE", "0.78")
             )
+        if minimum_final_score is None:
+            minimum_final_score = float(os.getenv("RAG_MIN_FINAL_SCORE", "0.78"))
 
         with self._encode_lock:
             query = self.model.encode(
@@ -156,6 +159,8 @@ class Retriever:
             keyword = _keyword_score(question, record)
             priority = _priority_score(record.get("priority"))
             final = 0.80 * semantic + 0.15 * keyword + 0.05 * priority
+            if final < minimum_final_score:
+                continue
             candidates.append(
                 {
                     **record,
