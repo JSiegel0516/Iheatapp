@@ -19,6 +19,7 @@ from app.services.gemma import (
 from app.services.retriever import RetrieverConfigurationError, get_retriever
 from app.services.enso_periods import episodes, select, EnsoScopeError, REFUSAL
 from app.services.season_labels import season_label, readable_seasons
+from app.services.wbgt_lookup import requested_lookup, lookup, LookupUnavailable
 
 
 router = APIRouter(tags=["chat"])
@@ -417,6 +418,12 @@ def _retrieve(question: str, enso_scope: EnsoScope | None = None) -> list[dict[s
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     context = request.map_context.model_dump(mode="json") if request.map_context else {}
+    if requested_lookup(request.message):
+        try:
+            context = await asyncio.to_thread(lookup, request.message)
+        except LookupUnavailable as exc:
+            return ChatResponse(assistant="Sol", model_family="Gemma",
+                                answer=str(exc), citations=[])
 
     try:
         enso_scopes, clarification = await asyncio.to_thread(_enso_scopes, request.message)
@@ -456,9 +463,20 @@ Rules:
 - Reply in the user's requested language: {request.language}.
 - Use Fahrenheit when discussing the iHeat display.
 - Never confuse air temperature with WBGT.
+- When a requested forecast is supplied, state the location, valid local date,
+  time and timezone. Identify it as forecast WBGT at the nearest grid point.
+  The newly fetched forecast overrides older map values in conversation history.
+  Do not call it observed weather or invent a category if none is supplied.
+  Application-provided WBGT values, locations and forecast times do not need
+  numbered citations. For a direct WBGT lookup, give only the requested forecast
+  details without citation markers or a Sources list; do not add unsolicited
+  document-based advice. If the user also asks for safety guidance, cite the
+  retrieved documents supporting that guidance, not the forecast value.
 - Never invent thresholds, legal requirements, citations, or work/rest ratios.
 - Base factual heat-safety claims on the retrieved evidence when it is relevant.
 - Cite supporting evidence inline using its numbered source label, such as [1].
+  This applies to retrieved documents, not application-provided forecast data.
+  Do not write a Sources section yourself; the application displays cited sources.
 - Answer the question directly and naturally. Do not say "according to the
   evidence," "based on the provided context," "the retrieved evidence says,"
   or otherwise mention the retrieval process.
