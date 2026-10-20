@@ -8,7 +8,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 from threading import Lock
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 from dotenv import load_dotenv
@@ -123,6 +123,7 @@ class Retriever:
         minimum_semantic_score: float | None = None,
         minimum_final_score: float | None = None,
         max_chunks_per_source: int = 2,
+        record_filter: Callable[[dict[str, Any]], bool] | None = None,
     ) -> list[dict[str, Any]]:
         """Return diversified passages ordered by hybrid relevance."""
         question = question.strip()
@@ -147,8 +148,20 @@ class Retriever:
             )[0].astype("float32")
 
         semantic_scores = self.embeddings @ query
-        candidate_count = min(candidate_limit, len(self.records))
-        candidate_indexes = np.argsort(semantic_scores)[::-1][:candidate_count]
+        eligible_indexes = np.fromiter(
+            (
+                index
+                for index, record in enumerate(self.records)
+                if record_filter is None or record_filter(record)
+            ),
+            dtype=np.int64,
+        )
+        if eligible_indexes.size == 0:
+            return []
+        candidate_count = min(candidate_limit, eligible_indexes.size)
+        eligible_scores = semantic_scores[eligible_indexes]
+        ranked_positions = np.argsort(eligible_scores)[::-1][:candidate_count]
+        candidate_indexes = eligible_indexes[ranked_positions]
 
         candidates: list[dict[str, Any]] = []
         for index in candidate_indexes:

@@ -10,22 +10,11 @@ import "react-chat-widget-react-18/lib/styles.css";
 import ScreenshotButton from "./Screenshot";
 import "./Chatbox.css";
 
-import OpenAI from "openai";
 import { useTranslation } from "react-i18next";
 import i18n from "../../../i18n";
 
 // change this later to get acutal WBGT point value from app context
 
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-  dangerouslyAllowBrowser: true, // <-- añade esto
-
-  defaultHeaders: {
-    "HTTP-Referer": process.env.REACT_APP_SITE_URL,
-    "X-Title": process.env.REACT_APP_SITE_TITLE,
-  },
-});
 
 const AIChat = ({ applicationRef, onOpenChange }) => {
   const { selectedWBGTValue } = useContext(AppContext);
@@ -40,7 +29,6 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
 
   const { t } = useTranslation();
 
-  const VISION_MODEL = "google/gemma-4-31b-it:free";
 
   const determineCategory = (valueF) => {
     if (valueF === null || valueF === undefined) return null;
@@ -51,47 +39,7 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
     return "Extreme";
   };
 
-  const formattedWBGT =
-    wbgtValue === null ? "unknown" : `${wbgtValue.toFixed(1)} °F`;
   const category = determineCategory(wbgtValue);
-
-  // Randomized style/topic hints to diversify responses
-  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-  const styleHints = [
-    "use a friendly tone and vary sentence starts",
-    "be crisp and energetic; avoid repeating the same verbs",
-    "use encouraging tone with varied verbs; avoid repetition",
-    "write in plain, conversational Spanish if user writes in Spanish",
-    "mix one concise sentence plus 2 short bullets",
-    "use 3 compact sentences without bullets",
-  ];
-
-  const angleHints = [
-    "mention wind or shade if relevant",
-    "suggest a cooling strategy (hat, light clothing, misting)",
-    "add a pacing cue (work:rest ratio like 15:5 min for harder activity)",
-    "suggest checking vulnerable groups (kids, mayores, trabajadores al sol)",
-    "suggest optimal time window (e.g., before 10 am / after 6 pm)",
-    "if Safe, suggest staying hydrated but enjoying outdoor time",
-  ];
-
-  const chosenStyle = pick(styleHints);
-  const chosenAngle = pick(angleHints);
-
-  const visionPrompt = `
-  Use Fahrenheit only. Be helpful but concise (4–6 short sentences max).
-  WBGT at the selected point: ${formattedWBGT}. Category (gauge thresholds): ${
-    category ?? "unknown"
-  }.
-  Thresholds (F): Safe <72, Caution 72–<76, Warning 76–<80, Danger 80–<84, Extreme ≥84.
-  Briefly interpret the heatmap you see: mention overall intensity (cool/moderate/hot), any hotspots vs cooler areas nearby, and whether the selected point looks higher/lower than surroundings.
-  Then give practical guidance for outdoor activity for this category (hydration, shade/rest pacing, time-of-day tips, vulnerable groups). Avoid extra background.
-  Style guidance: ${chosenStyle}. Also ${chosenAngle}.
-  Output format:
-  - First sentence: WBGT and category.
-  - Then 2–3 short bullets with varied wording.
-  `;
 
   useEffect(() => {
     console.log("AIChat component mounted");
@@ -139,20 +87,21 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
     };
   }, []);
 
-  const handleNewUserMessage = async (newMessage) => {
+  const handleNewUserMessage = async (newMessage, imageDataUrl = null) => {
     if (isProcessing) return;
 
     try {
       setIsProcessing(true);
       toggleMsgLoader();
 
-      const response = await fetch("/api/chat", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "/api"}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: newMessage,
+          ...(typeof imageDataUrl === "string" ? { image_data_url: imageDataUrl } : {}),
           language: i18n.language || "en",
           history: chatHistory.slice(-20),
           map_context: {
@@ -164,7 +113,7 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
 
       const result = await response.json().catch(() => null);
       if (!response.ok) {
-        const detail = result?.detail || `HTTP ${response.status}`;
+        const detail = typeof result?.detail === "string" ? result.detail : `HTTP ${response.status}`;
         throw new Error(detail);
       }
 
@@ -203,56 +152,12 @@ const AIChat = ({ applicationRef, onOpenChange }) => {
     }
   };
 
-  // ESTA FUNCIÓN SE ADAPTARÁ EN EL SIGUIENTE PASO PARA MANDAR IMÁGENES
   const handleScreenshotCaptured = async (imageDataUrl) => {
-    console.log("Screenshot capture started");
-    console.log("🖼️ Screenshot base64:", imageDataUrl);
-
-    addResponseMessage("Analyzing the heatmap...");
-    toggleMsgLoader(); // Start loading state
-    setIsProcessing(true);
-
-    try {
-      const imageContent = {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: visionPrompt.trim(),
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: imageDataUrl, // base64 inline image
-            },
-          },
-        ],
-      };
-
-      const completion = await openai.chat.completions.create({
-        model: VISION_MODEL,
-        messages: [imageContent],
-        temperature: 0.9,
-        top_p: 0.9,
-        presence_penalty: 0.4,
-        frequency_penalty: 0.4,
-      });
-
-      const reply = completion?.choices?.[0]?.message?.content;
-      if (reply) {
-        addResponseMessage(reply);
-      } else {
-        addResponseMessage("Received unexpected response from the model.");
-      }
-    } catch (error) {
-      console.error("Error analyzing screenshot:", error);
-      addResponseMessage(`Error: ${error.message}`);
-    } finally {
-      toggleMsgLoader(); // Stop loading
-      setIsProcessing(false);
-    }
+    await handleNewUserMessage(
+      "Interpret the displayed heatmap and selected WBGT point, and explain relevant heat-safety precautions.",
+      imageDataUrl
+    );
   };
-
   return (
     <>
       <Widget

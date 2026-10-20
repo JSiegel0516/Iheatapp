@@ -348,6 +348,7 @@ const MapView = () => {
       {(windowWidth < 768 || !isBasemapOpen) && <SliderControl />}
 
       <DeckGL
+        glOptions={{ preserveDrawingBuffer: true }}
         viewState={viewState}
         controller={{
           dragPan: true,

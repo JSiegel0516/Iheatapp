@@ -31,10 +31,12 @@ def generate_wbgt(
         fxx=forecast_hour
     )
 
-    # WBGT is published in the NBM inventory as "WETGLBT" (Wet Globe Temperature)
-    # at the surface level. The Herbie object is already scoped to a single fxx,
-    # so matching on variable + level is enough.
-    ds = h.xarray(":WETGLBT:surface:")
+    # NBM inventories can name WBGT or expose its numeric GRIB parameter.
+    # Herbie is already scoped to the requested forecast hour. Avoid matching
+    # optional trailing inventory fields, which vary between publications.
+    ds = h.xarray(
+        r":(?:WETGLBT|var discipline=0 center=7 local_table=1 parmcat=0 parm=206):surface:"
+    )
 
     var_name = list(ds.data_vars.keys())[0]
     da = ds[var_name]

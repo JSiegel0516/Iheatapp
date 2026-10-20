@@ -16,12 +16,12 @@ const ScreenshotButton = ({ applicationRef, onCapture, isProcessing }) => {
       return;
     }
 
+    let closedChat = false;
     try {
       setIsCapturing(true);
 
       // Close the chatbox if open
       const chatWidget = document.querySelector(".rcw-widget-container");
-      let closedChat = false;
       if (chatWidget && chatWidget.classList.contains("rcw-opened")) {
         toggleWidget();
         closedChat = true;
@@ -32,22 +32,27 @@ const ScreenshotButton = ({ applicationRef, onCapture, isProcessing }) => {
         setTimeout(resolve, closedChat ? 300 : 100)
       );
 
-      const canvas = await html2canvas(document.body, {
+      const canvas = await html2canvas(applicationRef.current, {
         useCORS: true,
-        allowTaint: true,
-        logging: true,
-        scale: 1,
+        allowTaint: false,
+        logging: false,
+        scale: Math.min(1, 1600 / Math.max(applicationRef.current.clientWidth, applicationRef.current.clientHeight, 1)),
         ignoreElements: (element) =>
-          element.classList.contains("rcw-widget-container"),
+          element.classList.contains("rcw-widget-container") ||
+          element.classList.contains("screenshot-button-container"),
       });
 
       const imageDataUrl = canvas.toDataURL("image/png");
-      onCapture(imageDataUrl);
-      console.log(imageDataUrl);
+      if (closedChat) {
+        toggleWidget();
+        closedChat = false;
+      }
+      await onCapture(imageDataUrl);
     } catch (error) {
       console.error("Error capturing screenshot:", error);
       alert("Failed to capture screenshot. Please try again.");
     } finally {
+      if (closedChat) toggleWidget();
       setIsCapturing(false);
     }
   };
@@ -57,6 +62,8 @@ const ScreenshotButton = ({ applicationRef, onCapture, isProcessing }) => {
 
   return (
     <button
+      type="button"
+      aria-label="Analyze a screenshot of the heatmap"
       onClick={captureScreenshot}
       className={`screenshot-button ${
         isDisabled ? "screenshot-button-disabled" : ""

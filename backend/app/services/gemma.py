@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Sequence
+from typing import Any
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI, OpenAIError
@@ -30,7 +31,7 @@ def _settings() -> tuple[str, str]:
     return api_key, model
 
 
-async def generate_answer(messages: Sequence[dict[str, str]]) -> str:
+async def generate_answer(messages: Sequence[dict[str, Any]]) -> str:
     """Generate one grounded Sol response with the configured Gemma model."""
     api_key, model = _settings()
     client = AsyncOpenAI(
