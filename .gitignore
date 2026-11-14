@@ -105,3 +105,6 @@ tmp/
 temp/
 *.tmp
 *.bak
+
+.env
+.env.production

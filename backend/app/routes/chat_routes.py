@@ -20,6 +20,7 @@ from app.services.retriever import RetrieverConfigurationError, get_retriever
 from app.services.enso_periods import episodes, select, EnsoScopeError, REFUSAL
 from app.services.season_labels import season_label, readable_seasons
 from app.services.wbgt_lookup import requested_lookup, lookup, LookupUnavailable
+from app.services.faq import match_faq
 
 
 router = APIRouter(tags=["chat"])
@@ -417,6 +418,17 @@ def _retrieve(question: str, enso_scope: EnsoScope | None = None) -> list[dict[s
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
+    faq_answer = match_faq(
+        request.message, request.language,
+        has_context=bool(request.history or request.image_data_url or (
+            request.map_context and any(
+                value is not None for value in request.map_context.model_dump().values()
+            )
+        )),
+    )
+    if faq_answer:
+        return ChatResponse(assistant="Sol", model_family="FAQ",
+                            answer=faq_answer, citations=[])
     context = request.map_context.model_dump(mode="json") if request.map_context else {}
     if requested_lookup(request.message):
         try:

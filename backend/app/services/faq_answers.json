@@ -1,0 +1,52 @@
+[
+  {
+    "id": "request_forecast",
+    "questions": ["How do I request a WBGT forecast?", "How do I check WBGT?", "How do I ask for a forecast?", "Can I get WBGT without clicking the map?"],
+    "answer": "Ask for a location, date, and whole-hour time—for example: ‘What is the WBGT in Brawley tomorrow at 2 PM?’ You can also use latitude, longitude. Times are Pacific Time. The location and time must be within the supported forecast coverage."
+  },
+  {
+    "id": "forecast_source",
+    "questions": ["Where does the WBGT data come from?", "What is the source of the WBGT data?", "Where does iHeat get its data?"],
+    "answer": "iHeat’s WBGT forecasts come from NOAA’s National Blend of Models (NBM). The chatbot uses the nearest forecast grid point for your requested location. These are modeled forecasts, not live thermometer readings."
+  },
+  {
+    "id": "timezone",
+    "questions": ["What timezone does iHeat use?", "What time zone does the chatbot use?", "Are forecast request times Pacific Time?"],
+    "answer": "Chatbot forecast requests use Pacific Time (America/Los_Angeles), including daylight saving time. Use a whole hour, such as 2 PM or 14:00. If you leave out the year in a date such as October 19, the chatbot uses the current year."
+  },
+  {
+    "id": "coverage",
+    "questions": ["What area does iHeat cover?", "What is the WBGT lookup coverage?", "Which region does iHeat support?"],
+    "answer": "The current iHeat lookup is limited to the Imperial/Coachella Valley region: latitude 32.6–34.3° north and longitude 116.3–114.7° west. Brawley and El Centro are inside this area. This is the app’s configured coverage, not the full extent of NOAA’s forecast model."
+  },
+  {
+    "id": "history",
+    "questions": ["Can I request historical WBGT?", "Does iHeat support historical WBGT?", "Can I look up past WBGT data?"],
+    "answer": "The chatbot’s WBGT lookup currently supports the current forecast window, not historical WBGT. It checks forecast leads of 1–36 hours from a recent model run; availability depends on NOAA’s published data. This restriction does not apply to the separate uploaded historical climate datasets."
+  },
+  {
+    "id": "el_nino_definition",
+    "questions": ["What is El Niño?", "Explain El Nino", "What does El Nino mean?"],
+    "answer": "El Niño is the warm phase of the El Niño–Southern Oscillation (ENSO). It involves unusually warm surface waters in the central and eastern tropical Pacific, coupled with changes in atmospheric circulation. It can affect weather patterns far beyond the Pacific. [NOAA overview](https://psl.noaa.gov/enso/enso_101.html)"
+  },
+  {
+    "id": "enso_definition",
+    "questions": ["What is ENSO?", "What does ENSO stand for?", "Explain the ENSO cycle"],
+    "answer": "ENSO stands for El Niño–Southern Oscillation. It is a coupled ocean–atmosphere climate pattern in the tropical Pacific with three phases: El Niño, La Niña, and neutral. [NOAA overview](https://psl.noaa.gov/enso/enso_101.html)"
+  },
+  {
+    "id": "el_nino_la_nina",
+    "questions": ["What is the difference between El Nino and La Nina?", "Compare El Niño and La Niña", "El Nino vs La Nina"],
+    "answer": "El Niño is the warm phase of ENSO; La Niña is the cool phase. Both involve tropical Pacific ocean temperatures and atmospheric changes. Their weather effects vary by region, season, and event. [NOAA overview](https://psl.noaa.gov/enso/enso_101.html)"
+  },
+  {
+    "id": "el_nino_duration",
+    "questions": ["How long does El Nino last?", "What is the typical duration of El Niño?"],
+    "answer": "El Niño typically lasts about 9–12 months, but individual events vary. [NOAA overview](https://psl.noaa.gov/enso/enso_101.html)"
+  },
+  {
+    "id": "el_nino_frequency",
+    "questions": ["How often does El Nino occur?", "How frequently does El Niño happen?", "Does El Nino happen every year?"],
+    "answer": "El Niño does not occur on a fixed yearly schedule. ENSO events recur irregularly, generally every 2–7 years. [NOAA overview](https://psl.noaa.gov/enso/enso_101.html)"
+  }
+]
